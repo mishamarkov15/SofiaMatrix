@@ -5,11 +5,11 @@ class Matrix {
 public:
     Matrix();
 
-    Matrix(size_t rows, size_t cols = 1);
+    explicit Matrix(size_t rows, size_t cols = 1);
 
     Matrix(double **matrix, size_t rows, size_t cols);
 
-    Matrix(const Matrix &other); // Разобрать
+    Matrix(const Matrix &other); // copy-constructor
 
     Matrix(const Matrix &&other); // Разобрать
 
@@ -33,8 +33,44 @@ Matrix::Matrix(size_t rows, size_t cols) : m_ptr(new double *[rows]), m_rows(row
     }
 }
 
+Matrix::Matrix(double **matrix, size_t rows, size_t cols) :  m_ptr(new double *[rows]), m_rows(rows), m_cols(cols) {
+    for (size_t i = 0; i < rows; ++i) {
+        m_ptr[i] = new double[cols];
+    }
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            m_ptr[i][j] = matrix[i][j];
+        }
+    }
+}
+
+Matrix::~Matrix() {
+    for (size_t i = 0; i < m_rows; ++i) {
+        delete [] m_ptr[i];
+    }
+    delete [] m_ptr;
+}
+
+Matrix::Matrix(const Matrix &other) {
+    m_rows = other.m_rows;
+    m_cols = other.m_cols;
+
+    m_ptr = new double*[m_rows];
+    for (size_t i = 0; i < m_rows; ++i) {
+        m_ptr[i] = new double[m_cols];
+    }
+
+    for (size_t i = 0; i < m_rows; ++i) {
+        for (size_t j = 0; j < m_cols; ++j) {
+            m_ptr[i][j] = other.m_ptr[i][j];
+        }
+    }
+}
+
+
 int main() {
-    int* data = new int[1000000];
-    delete [] data;
+    Matrix m1(3, 3);
+    std::cout << "some code...\n";
+    Matrix m2(m1);
     return 0;
 }
