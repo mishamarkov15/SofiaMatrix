@@ -3,4 +3,4 @@ project(SofiaMatrix)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(SofiaMatrix main.cpp)
+add_executable(SofiaMatrix tmp.cpp)
