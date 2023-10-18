@@ -73,12 +73,18 @@ namespace linalg {
     }
 
     Matrix Matrix::operator+(const Matrix &other) const {
+        if (m_rows != other.m_rows || m_cols != other.m_cols) {
+            throw std::runtime_error("Нельзя складывать матрицы разных размеров");
+        }
         Matrix res(*this);
         res += other;
         return res;
     }
 
     Matrix &Matrix::operator-=(const Matrix &other) {
+        if (m_rows != other.m_rows || m_cols != other.m_cols) {
+            throw std::runtime_error("Нельзя вычитать матрицы разных размеров");
+        }
         for (size_t i = 0; i < m_cols * m_rows; ++i) {
             m_ptr[i] -= other.m_ptr[i];
         }
@@ -86,6 +92,9 @@ namespace linalg {
     }
 
     Matrix Matrix::operator-(const Matrix &other) const {
+        if (m_rows != other.m_rows || m_cols != other.m_cols) {
+            throw std::runtime_error("Нельзя вычитать матрицы разных размеров");
+        }
         Matrix res(*this);
         res -= other;
         return res;
