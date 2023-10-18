@@ -99,4 +99,24 @@ namespace linalg {
         res -= other;
         return res;
     }
+
+    Matrix &Matrix::operator*=(const Matrix &other) {
+        if (m_cols != other.m_rows) {
+            throw std::runtime_error("Матрицы не совместимые");
+        }
+        double* res = new double[m_rows * other.m_cols]{};
+        for (size_t i = 0; i < m_rows; ++i) {
+            for (size_t j = 0; j < other.m_cols; ++j) {
+                for (size_t k = 0; k < m_cols; ++k) {
+                    res[i * m_rows + j] += m_ptr[i * m_rows + k] * other.m_ptr[k * other.m_rows + j];
+                }
+            }
+        }
+        for (size_t i = 0; i < m_rows; ++i) {
+            for (size_t j = 0; j < other.m_cols; ++j) {
+                std::cout << m_ptr[i * m_cols + j] << ' ';
+            }
+            std::cout << '\n';
+        }
+    }
 }

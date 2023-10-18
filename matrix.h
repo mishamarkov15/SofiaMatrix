@@ -29,11 +29,15 @@ namespace linalg {
 
         Matrix &operator+=(const Matrix& other);
 
-        Matrix operator+(const Matrix& other) const;
+        const Matrix operator+(const Matrix& other) const;
 
         Matrix &operator-=(const Matrix& other);
 
-        Matrix operator-(const Matrix& other) const;
+        const Matrix operator-(const Matrix& other) const;
+
+        Matrix &operator*=(const Matrix& other);
+
+        const Matrix operator*(const Matrix& other) const;
 
     private:
         double *m_ptr;
