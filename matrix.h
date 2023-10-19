@@ -27,17 +27,17 @@ namespace linalg {
 
         Matrix &operator=(const Matrix &&other); // move operator=
 
-        Matrix &operator+=(const Matrix& other);
+        Matrix &operator+=(const Matrix &other);
 
-        const Matrix operator+(const Matrix& other) const;
+        const Matrix operator+(const Matrix &other) const;
 
-        Matrix &operator-=(const Matrix& other);
+        Matrix &operator-=(const Matrix &other);
 
-        const Matrix operator-(const Matrix& other) const;
+        const Matrix operator-(const Matrix &other) const;
 
-        Matrix &operator*=(const Matrix& other);
+        Matrix &operator*=(const Matrix &other);
 
-        const Matrix operator*(const Matrix& other) const;
+        const Matrix operator*(const Matrix &other) const;
 
     private:
         double *m_ptr;
@@ -47,4 +47,4 @@ namespace linalg {
     };
 }
 
-#endif MATRIX_H
+#endif // MATRIX_H
