@@ -155,6 +155,34 @@ namespace linalg {
         return m_ptr[i * m_cols + j];
     }
 
+    bool Matrix::operator==(const Matrix &other) const {
+        if (m_cols != other.m_cols || m_rows != other.m_rows || m_capacity != other.m_capacity) {
+            return false;
+        }
+        for (size_t i = 0; i < m_rows * m_cols; ++i) {
+            // TODO: изменить на верное сравнение
+            if (m_ptr[i] != other.m_ptr[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool Matrix::operator!=(const Matrix &other) const {
+        return !(*this == other);
+    }
+
+    double Matrix::trace() const {
+        if (m_rows != m_cols) {
+            throw std::runtime_error("У не квадратной матрицы нельзя посчитать след");
+        }
+        double res = 0.0;
+        for (size_t i = 0, j = 0; i < m_rows; ++i, ++j) {
+            res += m_ptr[i * m_cols + j];
+        }
+        return res;
+    }
+
     const Matrix operator*(double lhs, const Matrix &rhs) {
         return rhs * lhs;
     }

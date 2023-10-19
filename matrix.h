@@ -43,9 +43,16 @@ namespace linalg {
 
         const Matrix operator*(double other) const;
 
-        double& operator()(size_t i, size_t j);
+        bool operator==(const Matrix &other) const;
 
-        const double& operator()(size_t i, size_t j) const;
+        bool operator!=(const Matrix &other) const;
+
+        double &operator()(size_t i, size_t j);
+
+        const double &operator()(size_t i, size_t j) const;
+
+        double trace() const;
+
 
     private:
         double *m_ptr;
@@ -54,7 +61,7 @@ namespace linalg {
         size_t m_cols;
     };
 
-    const Matrix operator*(double lhs, const Matrix& rhs);
+    const Matrix operator*(double lhs, const Matrix &rhs);
 }
 
 #endif // MATRIX_H
