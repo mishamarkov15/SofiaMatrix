@@ -39,12 +39,22 @@ namespace linalg {
 
         const Matrix operator*(const Matrix &other) const;
 
+        Matrix &operator*=(double other);
+
+        const Matrix operator*(double other) const;
+
+        double& operator()(size_t i, size_t j);
+
+        const double& operator()(size_t i, size_t j) const;
+
     private:
         double *m_ptr;
         size_t m_capacity;
         size_t m_rows;
         size_t m_cols;
     };
+
+    const Matrix operator*(double lhs, const Matrix& rhs);
 }
 
 #endif // MATRIX_H

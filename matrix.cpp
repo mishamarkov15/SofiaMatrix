@@ -105,6 +105,7 @@ namespace linalg {
             throw std::runtime_error("Матрицы не совместимые");
         }
         size_t new_size = m_rows * other.m_cols;
+        size_t new_capacity = pow(2, ceil(log2(new_size)));
         double *res = new double[new_size]{};
         for (size_t i = 0; i < m_rows; ++i) {
             for (size_t j = 0; j < other.m_cols; ++j) {
@@ -114,10 +115,12 @@ namespace linalg {
             }
         }
         delete[] m_ptr;
-        m_ptr = new double[new_size];
+        m_ptr = new double[new_capacity];
         for (size_t i = 0; i < new_size; ++i) {
             m_ptr[i] = res[i];
         }
+        delete[] res;
+        m_capacity = new_capacity;
         m_cols = other.m_cols;
         return *this;
     }
@@ -129,5 +132,30 @@ namespace linalg {
         Matrix tmp(*this);
         tmp *= other;
         return tmp;
+    }
+
+    Matrix &Matrix::operator*=(double other) {
+        for (size_t i = 0; i < m_rows * m_cols; ++i) {
+            m_ptr[i] *= other;
+        }
+        return *this;
+    }
+
+    const Matrix Matrix::operator*(double other) const {
+        Matrix tmp(*this);
+        tmp *= other;
+        return tmp;
+    }
+
+    double &Matrix::operator()(size_t i, size_t j) {
+        return m_ptr[i * m_cols + j];
+    }
+
+    const double &Matrix::operator()(size_t i, size_t j) const {
+        return m_ptr[i * m_cols + j];
+    }
+
+    const Matrix operator*(double lhs, const Matrix &rhs) {
+        return rhs * lhs;
     }
 }
