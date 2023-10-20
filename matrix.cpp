@@ -38,6 +38,22 @@ namespace linalg {
         return *this;
     }
 
+    Matrix &Matrix::operator=(Matrix &&other) {
+        if (this == &other) {
+            return *this;
+        }
+        delete[] m_ptr;
+        m_ptr = other.m_ptr;
+        m_capacity = other.m_capacity;
+        m_rows = other.m_rows;
+        m_cols = other.m_cols;
+        other.m_ptr = nullptr;
+        other.m_capacity = 0;
+        other.m_rows = 0;
+        other.m_cols = 0;
+        return *this;
+    }
+
     Matrix::Matrix(const std::initializer_list<std::initializer_list<double>> &list) :
             m_ptr(nullptr),
             m_rows(list.size()),
@@ -49,16 +65,6 @@ namespace linalg {
             for (const auto &x: line) {
                 m_ptr[k++] = x;
             }
-        }
-    }
-
-    // TODO: переделать под std::ostream
-    void Matrix::show() const {
-        for (size_t i = 0, k = 0; i < m_rows; ++i) {
-            for (size_t j = 0; j < m_cols; ++j) {
-                std::cout << m_ptr[k++] << ' ';
-            }
-            std::cout << '\n';
         }
     }
 
@@ -155,20 +161,19 @@ namespace linalg {
         return m_ptr[i * m_cols + j];
     }
 
-    bool Matrix::operator==(const Matrix &other) const {
+    bool Matrix::operator==(const Matrix &other) const noexcept {
         if (m_cols != other.m_cols || m_rows != other.m_rows || m_capacity != other.m_capacity) {
             return false;
         }
         for (size_t i = 0; i < m_rows * m_cols; ++i) {
-            // TODO: изменить на верное сравнение
-            if (m_ptr[i] != other.m_ptr[i]) {
+            if (!areSame(m_ptr[i], other.m_ptr[i])) {
                 return false;
             }
         }
         return true;
     }
 
-    bool Matrix::operator!=(const Matrix &other) const {
+    bool Matrix::operator!=(const Matrix &other) const noexcept {
         return !(*this == other);
     }
 
@@ -186,4 +191,158 @@ namespace linalg {
     const Matrix operator*(double lhs, const Matrix &rhs) {
         return rhs * lhs;
     }
+
+    const Matrix Matrix::getMinor(size_t row, size_t col) const {
+        const size_t new_rows = m_rows - 1;
+        const size_t new_cols = m_cols - 1;
+        Matrix new_matrix(new_rows, new_cols);
+        for (size_t i = 0; i < m_rows; ++i) {
+            for (size_t j = 0; j < m_cols; ++j) {
+                if (!(i == row || j == col)) {
+                    new_matrix(i - (i > row ? 1 : 0), j - (j > col ? 1 : 0)) = m_ptr[i * m_cols + j];
+                }
+            }
+        }
+        return new_matrix;
+    }
+
+    double Matrix::det() const {
+        if (m_cols != m_rows) {
+            throw std::runtime_error("Нельзя посчитать определитель у не квадратной матрицы");
+        } else if (m_cols == 1) {
+            return m_ptr[0];
+        } else if (m_cols == 2) {
+            return m_ptr[0] * m_ptr[3] - m_ptr[1] * m_ptr[2];
+        } else {
+            double res = 0.0;
+            for (size_t i = 0; i < m_cols; ++i) {
+                res += m_ptr[i] * (i % 2 == 0 ? 1 : -1) * getMinor(0, i).det();
+            }
+            return res;
+        }
+    }
+
+    void swap(double *mat, size_t row1, size_t row2, size_t col) {
+        for (size_t i = 0; i < col; i++) {
+            double temp = mat[row1 * col + i];
+            mat[row1 * col + i] = mat[row2 * col + i];
+            mat[row2 * col + i] = temp;
+        }
+    }
+
+    int rankOfMatrix(double *mat, size_t R, size_t C) {
+        int rank = C;
+
+        for (int row = 0; row < rank; row++) {
+            if (!areSame(mat[row * C + row], 0.0)) {
+                for (int col = 0; col < R; col++) {
+                    if (col != row) {
+                        double mult = mat[col * C + row] /
+                                      mat[row * C + row];
+                        for (int i = 0; i < rank; i++)
+                            mat[col * C + i] -= mult * mat[row * C + i];
+                    }
+                }
+            } else {
+                bool reduce = true;
+
+                for (int i = row + 1; i < R; i++) {
+                    if (!areSame(mat[i * C + row], 0)) {
+                        swap(mat, row, i, rank);
+                        reduce = false;
+                        break;
+                    }
+                }
+                if (reduce) {
+                    rank--;
+
+                    for (int i = 0; i < R; i++)
+                        mat[i * C + row] = mat[i * C + rank];
+                }
+                row--;
+            }
+        }
+        return rank;
+    }
+
+    int Matrix::rank() const {
+        size_t size = m_rows * m_cols;
+        double *tmp = new double[size];
+        for (size_t i = 0; i < size; ++i) {
+            tmp[i] = m_ptr[i];
+        }
+        int res = rankOfMatrix(tmp, m_rows, m_cols);
+        delete[] tmp;
+        return res;
+    }
+
+    Matrix::Matrix(Matrix &&other) : m_ptr(other.m_ptr), m_capacity(other.m_capacity), m_rows(other.m_rows),
+                                     m_cols(other.m_cols) {
+        other.m_ptr = nullptr;
+        other.m_capacity = 0;
+        other.m_rows = 0;
+        other.m_cols = 0;
+    }
+
+    std::ostream &operator<<(std::ostream &out, const Matrix &rhs) {
+        int width = rhs.findMaxLengthNumber();
+        for (size_t i = 0; i < rhs.m_rows; ++i) {
+            out << "|";
+            for (size_t j = 0; j < rhs.m_cols; ++j) {
+                out << std::setw(width) << std::fixed << rhs.m_ptr[i * rhs.m_cols + j] << (j + 1 < rhs.m_cols ? " " : "");
+            }
+            out << "|\n";
+        }
+        return out;
+    }
+
+    size_t Matrix::rows() const noexcept {
+        return m_rows;
+    }
+
+    size_t Matrix::cols() const noexcept {
+        return m_cols;
+    }
+
+    Matrix transpose(const Matrix& rhs) noexcept {
+        Matrix res(rhs.cols(), rhs.rows());
+        for (size_t i = 0; i < rhs.rows(); ++i) {
+            for (size_t j = 0; j < rhs.cols(); ++j) {
+                res(j, i) = rhs(i, j);
+            }
+        }
+        return res;
+    }
+
+    Matrix power(const Matrix& lhs, int rhs) noexcept {
+        Matrix res(lhs);
+        for (int i = 1; i < rhs; ++i) {
+            res *= lhs;
+        }
+        return res;
+    }
+
+    int Matrix::findMaxLengthNumber() const noexcept {
+        int max = -1;
+        for (size_t i = 0; i < m_rows * m_cols; ++i) {
+            int length = digitsCount(m_ptr[i]);
+            if (length > max) max = length;
+        }
+        return max;
+    }
+
+    int digitsCount(double number) {
+        int numberInt = std::abs(static_cast<int>(number));
+        int count = number > 0 ? 0 : 1;
+        while (numberInt > 0) {
+            ++count;
+            numberInt /= 10;
+        }
+        return count;
+    }
+
+    bool areSame(double a, double b) {
+        return fabs(a - b) < EPSILON;
+    }
+
 }
