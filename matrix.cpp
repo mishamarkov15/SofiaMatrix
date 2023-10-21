@@ -289,7 +289,8 @@ namespace linalg {
         for (size_t i = 0; i < rhs.m_rows; ++i) {
             out << "|";
             for (size_t j = 0; j < rhs.m_cols; ++j) {
-                out << std::setw(width) << std::fixed << rhs.m_ptr[i * rhs.m_cols + j] << (j + 1 < rhs.m_cols ? " " : "");
+                out << std::setw(width) << std::fixed << rhs.m_ptr[i * rhs.m_cols + j]
+                    << (j + 1 < rhs.m_cols ? " " : "");
             }
             out << "|\n";
         }
@@ -304,7 +305,7 @@ namespace linalg {
         return m_cols;
     }
 
-    Matrix transpose(const Matrix& rhs) noexcept {
+    Matrix transpose(const Matrix &rhs) noexcept {
         Matrix res(rhs.cols(), rhs.rows());
         for (size_t i = 0; i < rhs.rows(); ++i) {
             for (size_t j = 0; j < rhs.cols(); ++j) {
@@ -314,7 +315,7 @@ namespace linalg {
         return res;
     }
 
-    Matrix power(const Matrix& lhs, int rhs) noexcept {
+    Matrix power(const Matrix &lhs, int rhs) noexcept {
         Matrix res(lhs);
         for (int i = 1; i < rhs; ++i) {
             res *= lhs;
@@ -343,6 +344,63 @@ namespace linalg {
 
     bool areSame(double a, double b) {
         return fabs(a - b) < EPSILON;
+    }
+
+    Matrix getCofactor(const Matrix& vect) {
+        if (vect.rows() != vect.cols()) {
+            throw std::runtime_error("Матрица не квадратная");
+        }
+
+        Matrix solution(vect.rows(), vect.cols());
+        Matrix subVect(vect.rows() - 1, vect.cols() - 1);
+
+        for(std::size_t i = 0; i < vect.rows(); i++) {
+            for(std::size_t j = 0; j < vect.cols(); j++) {
+
+                int p = 0;
+                for(size_t x = 0; x < vect.rows(); x++) {
+                    if(x == i) {
+                        continue;
+                    }
+                    int q = 0;
+
+                    for(size_t y = 0; y < vect.rows(); y++) {
+                        if(y == j) {
+                            continue;
+                        }
+
+                        subVect(p, q) = vect(x, y);
+                        q++;
+                    }
+                    p++;
+                }
+                solution(i, j) = pow(-1, i + j) * subVect.det();
+            }
+        }
+        return solution;
+    }
+
+    Matrix invert(const Matrix &rhs) {
+        if (rhs.rows() != rhs.cols()) {
+            throw std::runtime_error("Матрица не квадратная. Посчитать обратную невозможно.");
+        }
+
+        double det = rhs.det();
+
+        if (det == 0) {
+            throw std::runtime_error("Детерминант равен нулю. Не существует обратной матрицы.");
+        }
+
+        double d = 1.0 / det;
+        Matrix solution = transpose(getCofactor(rhs));
+
+        for (size_t i = 0; i < solution.rows(); i++) {
+            for (size_t j = 0; j < solution.cols(); j++) {
+                solution(i, j) *= d;
+            }
+        }
+
+        return solution;
     }
 
 }

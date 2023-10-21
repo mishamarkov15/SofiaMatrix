@@ -74,6 +74,10 @@ namespace linalg {
         size_t m_cols;
     };
 
+    Matrix getCofactor(const Matrix& vect);
+
+    Matrix invert(const Matrix& rhs);
+
     Matrix transpose(const Matrix& rhs) noexcept;
 
     Matrix power(const Matrix& lhs, int rhs) noexcept;

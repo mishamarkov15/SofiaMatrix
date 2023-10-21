@@ -2,9 +2,7 @@
 #include "matrix.h"
 
 int main() {
-    linalg::Matrix m1 = {{6, -7}, {0, 3}};
-    linalg::Matrix m2 = {{1, 2}, {6, 9}};
-    std::cout << linalg::power(m1, 3);
-
+    linalg::Matrix m1 = {{6, -7, 4}, {0, 3, 9}, {8, -2, 4}};
+    std::cout << linalg::invert(m1);
     return 0;
 }
