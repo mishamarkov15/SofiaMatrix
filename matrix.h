@@ -7,14 +7,13 @@
 namespace linalg {
     const double EPSILON = 0.0000001;
 
-// TODO: noexcept
     class Matrix {
     public:
-        Matrix();
+        Matrix();  // Конструктор по умолчанию
 
-        Matrix(const std::initializer_list<std::initializer_list<double>> &list);
+        Matrix(const std::initializer_list<std::initializer_list<double>> &list);  // Конструктор от списка инициализации
 
-        explicit Matrix(size_t rows, size_t cols = 1);
+        explicit Matrix(size_t rows, size_t cols = 1);  // Конструктор от двух чисел
 
         Matrix(const Matrix &other); // copy-constructor
 
@@ -42,6 +41,8 @@ namespace linalg {
 
         const Matrix operator*(double other) const;
 
+        const Matrix operator-() const noexcept;
+
         bool operator==(const Matrix &other) const noexcept;
 
         bool operator!=(const Matrix &other) const noexcept;
@@ -60,11 +61,17 @@ namespace linalg {
 
         int rank() const;
 
+        double norm() const;
+
+        Matrix& gauss_forward();
+
+        Matrix& gauss_backward();
+
+        const Matrix getMinor(size_t row, size_t col) const;
+
         friend std::ostream& operator<<(std::ostream& out, const Matrix& rhs);
 
-
     private:
-        const Matrix getMinor(size_t row, size_t col) const;
 
         int findMaxLengthNumber() const noexcept;
 

@@ -289,7 +289,7 @@ namespace linalg {
         for (size_t i = 0; i < rhs.m_rows; ++i) {
             out << "|";
             for (size_t j = 0; j < rhs.m_cols; ++j) {
-                out << std::setw(width) << std::fixed << rhs.m_ptr[i * rhs.m_cols + j]
+                out << std::setw(width) << rhs.m_ptr[i * rhs.m_cols + j]
                     << (j + 1 < rhs.m_cols ? " " : "");
             }
             out << "|\n";
@@ -344,6 +344,14 @@ namespace linalg {
 
     bool areSame(double a, double b) {
         return fabs(a - b) < EPSILON;
+    }
+
+    double Matrix::norm() const {
+        double sum = 0.0;
+        for (size_t i = 0; i < m_cols * m_rows; ++i) {
+            sum += m_ptr[i] * m_ptr[i];
+        }
+        return sqrt(sum);
     }
 
     Matrix getCofactor(const Matrix& vect) {
@@ -401,6 +409,14 @@ namespace linalg {
         }
 
         return solution;
+    }
+
+    const Matrix Matrix::operator-() const noexcept {
+        Matrix res(*this);
+        for (size_t i = 0; i < res.m_cols * res.m_rows; ++i) {
+            res.m_ptr[i] = -res.m_ptr[i];
+        }
+        return res;
     }
 
 }
